@@ -5,7 +5,9 @@ Hear further: dump1090 with a coherent 2.4 MHz demodulator. dump1090x is
 FlightAware, plus a new demodulator and error repair for 2.4 MHz SDR input
 (RTL-SDR, SDRplay); see below and [README-demod2400x.md](README-demod2400x.md).
 It is a drop-in replacement for the dump1090-fa binary of a PiAware or
-dump1090-fa install. Licence: GPL v2 or later, as dump1090-fa.
+dump1090-fa install. Licence: GPL v2 or later, as dump1090-fa ([LICENSE](LICENSE));
+[NOTICE](NOTICE) keeps upstream's licence statement and the BSD notice of the
+original dump1090 by Salvatore Sanfilippo, which parts of the code derive from.
 
 ## dump1090-fa
 
