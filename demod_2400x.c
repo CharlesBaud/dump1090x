@@ -121,12 +121,6 @@ static unsigned bitErrors(const uint8_t *a, const uint8_t *b, int bits)
 #endif
 #define DATA2_THRES   ((4*DATA_THRES)/5)
 
-// A DF17 with one bit corrected by the CRC, from an address not yet heard, adds the
-// address to the ICAO filter only if the corrected bit is among this many least certain
-// bits of the frame. A genuine error usually is (63% of corrections from known
-// aircraft); a wrong correction lands there by chance only 4 times in 112
-#define WEAK_CORRECTION_RANK 4
-
 // An Address/Parity reply (DF0/4/5/16/20/21) has no checksum of its own: its CRC is the
 // address XOR the syndrome of any bit errors, so one bad bit gives a wrong address and
 // the reply is lost. The repair: if CRC ^ syndrome(bit) is an address in the ICAO filter
@@ -451,26 +445,59 @@ static int fineTiming(int pos, const uint8_t *msg, int bits, const uint8_t *udat
 }
 
 
-// Is the one bit the CRC corrected ('corrected' against the demodulated c->msg) among the
-// WEAK_CORRECTION_RANK least certain bits of the frame? Certainty is the log power
-// contrast of each bit's two chips, as for the soft-decision repair from magnitudes.
+// The k least certain of bits first..last-1 (smallest chip contrast), weakest first,
+// the earlier bit on a tie. Returns how many were found (k, unless the range is shorter)
+static int weakestBits(const uint8_t *chip, int first, int last, int *w, int k)
+{
+    int dw[8], n = 0;
+    if (k > 8)
+        k = 8;
+    for (int i = first; i < last; i++) {
+        const int d = abs(chip[2 * i + 1] - chip[2 * i]);
+        if (n == k && d >= dw[n - 1])
+            continue;
+        int j = n < k ? n++ : n - 1;
+        for (; j > 0 && dw[j - 1] > d; j--) {
+            w[j] = w[j - 1];
+            dw[j] = dw[j - 1];
+        }
+        w[j] = i;
+        dw[j] = d;
+    }
+    return n;
+}
+
+// Are bits first..last-1 of a frame evenly certain, as a real frame with a few bad bits
+// is (noise and overlapping replies have many weak bits)? The spread of the bits' chip
+// contrasts, their mean absolute deviation over their mean, must be below num / den.
+// In integers: den * sum |n * d - S| < num * n * S
+static int evenlyCertain(const uint8_t *chip, int first, int last, int num, int den)
+{
+    const int n = last - first;
+    int sum = 0, dev = 0;
+    for (int i = first; i < last; i++)
+        sum += abs(chip[2 * i + 1] - chip[2 * i]);
+    for (int i = first; i < last; i++)
+        dev += abs(n * abs(chip[2 * i + 1] - chip[2 * i]) - sum);
+    return den * dev < num * n * sum;
+}
+
+// Does a DF17 whose one bad bit the CRC corrected ('corrected' against the demodulated
+// c->msg) pass the same test as the Address/Parity repair: the corrected bit among the
+// frame's AP_REPAIR_BITS least certain after the DF field, and the frame evenly certain?
+// Only then does an address not yet heard go into the ICAO filter.
 static int weakCorrection(const struct candidate *c, const uint8_t *corrected, const uint8_t *udata, int nt)
 {
     const uint8_t *chip = frameChips(udata, nt, c->pos);
-    int bad = -1;
+    int w[AP_REPAIR_BITS];
+    const int n = weakestBits(chip, 5, MODES_LONG_MSG_BITS, w, AP_REPAIR_BITS);
 
-    for (int i = 0; i < MODES_LONG_MSG_BITS && bad < 0; i++)
-        if (((c->msg[i >> 3] ^ corrected[i >> 3]) >> (7 - (i & 7))) & 1)
-            bad = i;
-    if (bad < 0)
+    if (!evenlyCertain(chip, 5, MODES_LONG_MSG_BITS, AP_REPAIR_SPREAD_NUM, AP_REPAIR_SPREAD_DEN))
         return 0;
-
-    const int d_bad = abs(chip[2 * bad + 1] - chip[2 * bad]);
-    int rank = 0;
-    for (int i = 0; i < MODES_LONG_MSG_BITS; i++)
-        if (abs(chip[2 * i + 1] - chip[2 * i]) < d_bad)
-            rank++;
-    return rank < WEAK_CORRECTION_RANK;
+    for (int k = 0; k < n; k++)
+        if ((c->msg[w[k] >> 3] ^ corrected[w[k] >> 3]) & (0x80 >> (w[k] & 7)))
+            return 1;
+    return 0;
 }
 
 
@@ -484,30 +511,11 @@ static int apRepair(struct candidate *c, const uint8_t *udata, int nt)
     const int nb = df >= 16 ? MODES_LONG_MSG_BITS : MODES_SHORT_MSG_BITS;
     const uint8_t *chip = frameChips(udata, nt, c->pos);
 
-    // The spread of the bits' contrasts after the DF field: sum |nd * d - sum| < 0.55 * nd * sum
-    const int nd = nb - 5;
-    int sum = 0, dev = 0;
-    for (int i = 5; i < nb; i++)
-        sum += abs(chip[2 * i + 1] - chip[2 * i]);
-    for (int i = 5; i < nb; i++)
-        dev += abs(nd * abs(chip[2 * i + 1] - chip[2 * i]) - sum);
-    if (AP_REPAIR_SPREAD_DEN * dev >= AP_REPAIR_SPREAD_NUM * nd * sum)
+    if (!evenlyCertain(chip, 5, nb, AP_REPAIR_SPREAD_NUM, AP_REPAIR_SPREAD_DEN))
         return 0;
 
-    // The weakest bits, weakest first (the earlier bit on a tie)
-    int w[AP_REPAIR_BITS], dw[AP_REPAIR_BITS], n = 0;
-    for (int i = 5; i < nb; i++) {
-        const int d = abs(chip[2 * i + 1] - chip[2 * i]);
-        if (n == AP_REPAIR_BITS && d >= dw[n - 1])
-            continue;
-        int k = n < AP_REPAIR_BITS ? n++ : n - 1;
-        for (; k > 0 && dw[k - 1] > d; k--) {
-            w[k] = w[k - 1];
-            dw[k] = dw[k - 1];
-        }
-        w[k] = i;
-        dw[k] = d;
-    }
+    int w[AP_REPAIR_BITS];
+    const int n = weakestBits(chip, 5, nb, w, AP_REPAIR_BITS);
 
     // Exactly one weak bit must give a listed address (a short frame's bits are the
     // last 56 of modesBitSyndrome()'s 112)
@@ -725,8 +733,8 @@ static int emitFrame(const struct mag_buf *mag, const struct candidate *c,
     Modes.stats_current.demod_accepted[mm.correctedbits]++;
 
     // A DF17 with one corrected bit from a new address: list the address if the
-    // corrected bit is one the slicer was unsure of (decodeModesMessage() lists only
-    // clean frames' addresses, and refreshes known ones)
+    // correction passes weakCorrection() (decodeModesMessage() lists only clean frames'
+    // addresses, and refreshes known ones)
     if (mm.msgtype == 17 && mm.correctedbits == 1 && !icaoFilterTest(mm.addr) &&
         weakCorrection(c, mm.msg, st->udata, nt))
         icaoFilterAdd(mm.addr);
