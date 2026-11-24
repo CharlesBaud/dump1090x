@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 def crc_syndrome(bits, nb):
     rem = 0
     for b in bits[:nb - 24]:

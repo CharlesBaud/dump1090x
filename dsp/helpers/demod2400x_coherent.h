@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 // demod2400x_coherent.h: shared pieces of the coherent_decode starch kernel
 // (dsp/impl/demod2400x.*.c). Every implementation uses these for the scalar steps,
 // so all of them give the same bits.

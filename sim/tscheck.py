@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Timestamp check for gen_timing.c output: reported 12 MHz timestamp minus the known
 # frame start, by sub-sample phase (start tick mod 5). The mean includes a constant
 # offset (resampler and filter delays), which doesn't matter for MLAT; it should be

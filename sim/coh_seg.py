@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Segmented estimates: instead of one frequency and channel from the first 56 bits used
 # for all 112, split the frame into segments of 56, 28 or 14 bits and estimate each one
 # on its own (nothing shared), so a short frame only ever uses its own bits. Also the

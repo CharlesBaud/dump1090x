@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Carrier sample of each bit: the pair sum a + b (first version) against the chip with
 # the larger magnitude, a if |a|^2 >= |b|^2 else b, used as it is (complex), as the
 # kernel now does. Same method otherwise: 7 blocks of 8, 33 bins, parabola, exact

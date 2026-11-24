@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Reader for the chip-sample dump written by dump1090 built with -DCOHERENT_SAMPLES=\"file\"
 # (experiment branch demod-2400x-coherent). See dumpFrame() in demod_2400x.c.
 #

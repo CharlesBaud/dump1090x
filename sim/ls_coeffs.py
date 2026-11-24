@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Least-squares fractional-delay upsampler phases, every phase summing to exactly 'gain'.
 # Usage: ls_coeffs.py fmax_mhz gain   (exits with an error if any |tap| > 127)
 import sys, numpy as np

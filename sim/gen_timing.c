@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 // Test signal for DEMOD_2400X: DF17 frames at known 12 MHz ticks, after gen_data.c.
 //
 // Frame k starts at 12 MHz tick (k + 1) * SPACING. Chips are rectangular on the

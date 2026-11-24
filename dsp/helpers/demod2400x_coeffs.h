@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 // demod2400x_coeffs.h: upsampler coefficients for the DEMOD_2400X starch kernels
 // (dsp/impl/demod2400x.*.c only)
 

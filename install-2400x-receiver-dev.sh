@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Choose the receiver for an existing dump1090-fa install, then install the
 # DEMOD_2400X build from this directory with install-2400x-dev.sh.
 #

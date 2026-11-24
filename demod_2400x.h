@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 #ifndef DEMOD_2400X_H
 #define DEMOD_2400X_H
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Decision SNR, magnitude vs coherent, on accepted frames (true bits known), first 56 bits
 import sys, numpy as np
 sys.argv = [sys.argv[0].replace('coh_snr.py', 'coh_acq.py')] + sys.argv[1:]

@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Make an existing dump1090-fa package install (PiAware, or the FlightAware
 # dump1090-fa .deb) run the DEMOD_2400X build from this directory.
 #

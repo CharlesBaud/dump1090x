@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Undo install-2400x-dev.sh: the dump1090-fa service goes back to the packaged
 # /usr/bin/dump1090-fa (as installed by apt-get), with its settings unchanged.
 #
