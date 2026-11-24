@@ -237,7 +237,7 @@ stated.
 
 | File | Change | Why |
 |---|---|---|
-| `Makefile` | Adds `-DDEMOD_2400X -DUSE_MAGNITUDE -DDEMOD_2400X_COHERENT`, the new objects, default version `11.2y` (`11.2x` on demod-2400x-dev) | Builds the new demodulator in |
+| `Makefile` | Adds `-DDEMOD_2400X -DUSE_MAGNITUDE -DDEMOD_2400X_COHERENT`, the new objects, default version `11.1x` | Builds the new demodulator in |
 | `dump1090.c` | Options `--no-demod2400x`, `--no-coherent` and `--no-soft-fix` (all on by default); `fifo_create()` with I/Q (16 buffers) or magnitudes (12, as upstream); `demodulate2400x()` or `demodulate2400()`; `demodBehind()`: the stock demodulator on the I/Q buffer's magnitudes while DEMOD_2400X is behind with live input | Chooses the demodulator when running; falls back instead of dropping buffers when the CPU can't keep up |
 | `dump1090.h` | `Modes.demod_2400x`, `Modes.coherent`, `Modes.coherent_repair`; `MODES_MAG_BUFFERS_2400X` (16); includes `demod_2400x.h` | |
 | `fifo.c/h` | Not under `#ifdef`: `fifo_create()` takes `dtype_iq`, and the buffers and overlap copy are twice as large when it is 1; `magbuf_sample()` addresses sample n (`fifo_values_per_sample` is 1 for magnitudes, as before) | The FIFO carries interleaved I/Q for DEMOD_2400X, so it (and the coherent pass) can use the phase |
@@ -267,7 +267,7 @@ doesn't have the two options.
 
 * `make test`: CPR tests, and `starch-benchmark -V`, which checks every
   NEON and AVX2 kernel against generic (including worst-case input).
-* Decode a recording with stock and with this branch and compare (see
+* Decode a recording with stock and with dump1090x and compare (see
   [Testing](#testing)); `--throttle` for positions and tracks.
 
 ### Open points
@@ -282,7 +282,7 @@ doesn't have the two options.
   fall behind. `vcgencmd get_throttled` shows whether it has throttled (0x0 if
   never). When DEMOD_2400X falls behind with live input it hands buffers to
   the stock demodulator until it catches up, instead of dropping them.
-* The default version string is `11.2y` (`11.2x` on demod-2400x-dev); upstream's is `unknown` (packages
+* The default version string is `11.1x` (release 11.1 plus this work); upstream's is `unknown` (packages
   set it).
 * `--dcfilter` is still not supported (as upstream), although the converters
   now remove DC anyway.
@@ -295,8 +295,7 @@ doesn't have the two options.
   `demod_2400x.c`, and two diagnostic globals in `demod_2400x_coherent.c`.
   All are used from the demodulator thread only.
 * The stock SoapySDR driver fails on an SDRplay RSP1B (the stream doesn't
-  start, and the gain runs backwards); fixed separately, on
-  `sdrplay-gain-dev`, not here.
+  start, and the gain runs backwards); fixed here in `sdr_soapy.c`.
 * Upstream code shifts `1 << df` with `df` up to 31 in `mode_s.c` and
   `demod_2400.c` (undefined for an `int`, found by UBSan); left as upstream.
 

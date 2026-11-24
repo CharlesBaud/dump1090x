@@ -1,7 +1,7 @@
-# Use of generative AI on this branch
+# Use of generative AI in this repository
 
-This branch (`demod-2400x-dev`, which carries the work of `demod-2400x` and
-`demod-2400x-coherent` over to upstream `dev`) contains
+This repository (dump1090x: dump1090-fa release 11.1 plus the DEMOD_2400X
+work) contains
 code and text written with Claude Code (Anthropic, Claude Opus models),
 working under my direction.
 

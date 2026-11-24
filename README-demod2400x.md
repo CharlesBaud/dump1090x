@@ -1,10 +1,9 @@
 # DEMOD_2400X demodulator
 
-This branch (`demod-2400x-dev`, based on upstream `dev`) adds a new Mode S
+dump1090x (dump1090-fa release 11.1 plus this work) adds a new Mode S
 demodulator for 2.4 MHz SDR input (`demod_2400x.c`, enabled with
 `-DDEMOD_2400X -DUSE_MAGNITUDE` in the Makefile; the build reports version
-`11.2y` unless `DUMP1090_VERSION` is set; demod-2400x-dev without the
-soft-decision repair reports `11.2x`). A coherent second pass
+`11.1x`, release 11.1 plus this work, unless `DUMP1090_VERSION` is set). A coherent second pass
 (`-DDEMOD_2400X_COHERENT`) rescues frames that fail the CRC; see
 [COHERENT-demod2400x.md](COHERENT-demod2400x.md). Both are on by default and can
 be switched off when running:
@@ -58,7 +57,7 @@ masthead preamp). It changes only the receiver lines of
 
 A 60 s capture from a Raspberry Pi 4 with a FlightAware Pro Stick Plus
 (gain 49.6 dB), with an outdoor antenna on a 3 m pole and 12 m of LMR400,
-decoded by stock dump1090-fa 11.1 and by this branch with the same options
+decoded by stock dump1090-fa 11.1 and by dump1090x with the same options
 (`--fix`, receiver position set, `--throttle`). "+ coherent" is DEMOD_2400X with the
 coherent second pass; changes are against stock. Development also used an SDRplay
 recording and synthetic frames; see

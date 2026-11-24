@@ -1,4 +1,13 @@
-# dump1090-fa Debian/Raspbian packages
+# dump1090x
+
+Hear further: dump1090 with a coherent 2.4 MHz demodulator. dump1090x is
+[dump1090-fa](https://github.com/flightaware/dump1090) release 11.1 by
+FlightAware, plus a new demodulator and error repair for 2.4 MHz SDR input
+(RTL-SDR, SDRplay); see below and [README-demod2400x.md](README-demod2400x.md).
+It is a drop-in replacement for the dump1090-fa binary of a PiAware or
+dump1090-fa install. Licence: GPL v2 or later, as dump1090-fa.
+
+## dump1090-fa
 
 dump1090-fa is a ADS-B, Mode S, and Mode 3A/3C demodulator and decoder that
 will receive and decode aircraft transponder messages received via
@@ -16,11 +25,11 @@ it can be used to contribute crowd-sourced flight tracking data to FlightAware.
 It is designed to build as a Debian package, but should also be buildable on
 many other Linux or Unix-like systems.
 
-## DEMOD_2400X demodulator (this branch)
+## DEMOD_2400X demodulator
 
-This branch adds an alternative Mode S demodulator for 2.4 MHz SDR input
+dump1090x adds an alternative Mode S demodulator for 2.4 MHz SDR input
 (`demod_2400x.c`, enabled with `-DDEMOD_2400X -DUSE_MAGNITUDE` in the
-Makefile; the build reports version `11.2y`; `--no-demod2400x` runs the stock
+Makefile; the build reports version `11.1x`; `--no-demod2400x` runs the stock
 demodulator instead). It upsamples the I/Q to
 12 MHz with a polyphase filter, finds preambles at every 12 MHz position and
 refines the arrival time for MLAT. The heavy kernels are starch functions
@@ -35,7 +44,7 @@ on a Pi 4 or Pi 5 and 2.8 times on a Pi 3B.
 * [README-demod2400x.md](README-demod2400x.md): design and results
 * [NOTES-demod2400x.md](NOTES-demod2400x.md): development notes, decisions and
   what was tried
-* [AI-DISCLOSURE.md](AI-DISCLOSURE.md): use of generative AI on this branch
+* [AI-DISCLOSURE.md](AI-DISCLOSURE.md): use of generative AI in this repository
 * [sim/](sim/): coefficient generator and test-signal tools
 
 ## Building under bullseye, buster, or stretch

@@ -6,7 +6,7 @@ decoder throws away, to recover some of those frames. On the 60 s Pi 4
 RTL-SDR capture it adds about 14% more messages (84,545 → 96,370) for about
 27% more demodulation CPU.
 
-Branch: `demod-2400x-dev` (developed on `demod-2400x-coherent`). Built in by
+Built in by
 `-DDEMOD_2400X_COHERENT` in the Makefile and on by default; `--no-coherent`
 switches it off when running, and the decoder is then byte-for-byte plain
 DEMOD_2400X. Frames that still fail the CRC get a soft-decision repair, from
