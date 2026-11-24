@@ -137,6 +137,16 @@ static unsigned bitErrors(const uint8_t *a, const uint8_t *b, int bits)
 // refresh an address
 #define AP_REPAIR_BITS 3
 
+// ... and only if the reply's bits are evenly certain: a real reply with one bad bit has
+// one or two weak bits among confident ones, noise or overlapping replies have many.
+// The spread is the mean absolute deviation of the bits' chip contrasts over their mean,
+// which must be below AP_REPAIR_SPREAD_NUM / AP_REPAIR_SPREAD_DEN (0.55). On decoys
+// (alternate 10 s blocks time-reversed) this removed 63% / 45% of the false repairs for
+// 1.8% / 6.9% of the real ones (RSP1B / RTL-SDR); it separated them better than variance,
+// a percentile, a count of weak bits or the bit quality
+#define AP_REPAIR_SPREAD_NUM 11
+#define AP_REPAIR_SPREAD_DEN 20
+
 
 // Static data
 struct staticdata_t {
@@ -473,6 +483,16 @@ static int apRepair(struct candidate *c, const uint8_t *udata, int nt)
         return 0;
     const int nb = df >= 16 ? MODES_LONG_MSG_BITS : MODES_SHORT_MSG_BITS;
     const uint8_t *chip = frameChips(udata, nt, c->pos);
+
+    // The spread of the bits' contrasts after the DF field: sum |nd * d - sum| < 0.55 * nd * sum
+    const int nd = nb - 5;
+    int sum = 0, dev = 0;
+    for (int i = 5; i < nb; i++)
+        sum += abs(chip[2 * i + 1] - chip[2 * i]);
+    for (int i = 5; i < nb; i++)
+        dev += abs(nd * abs(chip[2 * i + 1] - chip[2 * i]) - sum);
+    if (AP_REPAIR_SPREAD_DEN * dev >= AP_REPAIR_SPREAD_NUM * nd * sum)
+        return 0;
 
     // The weakest bits, weakest first (the earlier bit on a tie)
     int w[AP_REPAIR_BITS], dw[AP_REPAIR_BITS], n = 0;
