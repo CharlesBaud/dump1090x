@@ -168,6 +168,7 @@ then `make test`):
 | gcc 14.2 (cross) | x86-64 AVX2 | 0 | pass under qemu-x86_64 (113 validations) |
 | clang 19.1 (cross) | x86-64 AVX2 | 0 | pass under qemu-x86_64 (113 validations) |
 | gcc (native, MinGW) | x86-64 AVX2 | 0 | `starch-benchmark -V` passes on real hardware (113, Core i5-8300H) |
+| gcc 16.2 (native, MSYS2 POSIX) | x86-64 AVX2 | 1 (Cygwin `isdigit()`, `-Wchar-subscripts`) | whole `dump1090` on real hardware: the same frames as the Pi 5 (see below) |
 
 The gcc and clang AArch64 builds give byte-identical decoder output,
 timestamps included. On x86, clang with `-ffast-math` compiles AVX2 square
@@ -183,4 +184,8 @@ hardware, also after the change to 8-bit log power, which made the AVX2
 faster (0.38 → 0.20 ms). The ±250 kHz coherent frequency search added since
 also passes on real x86-64 hardware (1.30 µs per full decode with AVX2), as
 do the `weakest_bits` kernel and everything else as of version 11.2y (113
-validations).
+validations). The whole decoder was also run on that PC (built with MSYS2's
+POSIX gcc, SDR drivers off) on 60 s of an RSP1B capture: 105,599 frames,
+byte-identical to the Pi 5's, with the same counts for every repair,
+including the weak-bit repair of address/parity replies (version 11.2y, as
+11.1x here).
